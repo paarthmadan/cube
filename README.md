@@ -1,6 +1,6 @@
 # Cube Timer
 
-### Goal 
+### Goal
 
 Create a clean, minimal, cube timer capable of providing scrambles, timing solves, storing times, computing averages and other statistics, and storing this data
 
@@ -8,7 +8,7 @@ Create a clean, minimal, cube timer capable of providing scrambles, timing solve
 
 - [ ] Basic TUI
 - [ ] Scrambles
-- [ ] Timer
+- [x] Timer
 
 ### Not on the critical path
 - [ ] Persisting data
