@@ -7,7 +7,7 @@ Create a clean, minimal, cube timer capable of providing scrambles, timing solve
 ### MVP
 
 - [ ] Basic TUI
-- [ ] Scrambles
+- [x] Scrambles
 - [x] Timer
 
 ### Not on the critical path

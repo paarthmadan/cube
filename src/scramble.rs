@@ -5,6 +5,7 @@ use rand::{
     Rng,
 };
 
+#[derive(PartialEq, Clone, Copy)]
 enum Move {
     Up,
     Down,
@@ -79,9 +80,22 @@ impl fmt::Display for Scramble {
 impl Default for Scramble {
     fn default() -> Self {
         let mut moves: Vec<String> = Vec::new();
+        let mut prev: Option<Move> = None;
 
         for _ in 1..=20 {
-            let mv: Move = rand::random();
+            let mut r: Move = rand::random();
+            let mv = match prev {
+                Some(p) => {
+                    while r == p {
+                        r = rand::random();
+                    }
+                    r
+                },
+                None => r,
+            };
+
+            prev = Some(mv);
+
             let turn: Turn = rand::random();
 
             let s = format!("{}{}", mv.resolve(), turn.resolve());
