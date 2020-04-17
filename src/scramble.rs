@@ -53,8 +53,6 @@ impl Turn {
     }
 }
 
-
-
 impl Move {
     fn resolve(&self) -> &str {
         match *self {
@@ -69,7 +67,7 @@ impl Move {
 }
 
 pub struct Scramble {
-    moves: Vec<String>
+    moves: Vec<String>,
 }
 
 impl fmt::Display for Scramble {

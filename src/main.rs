@@ -5,9 +5,7 @@ mod scramble;
 use event_handler::{Event, EventHandler};
 use scramble::Scramble;
 
-use std::thread;
-
-use std::sync::mpsc::{channel};
+use std::sync::mpsc::channel;
 
 use std::time::{Duration, Instant};
 
@@ -81,6 +79,8 @@ fn main() {
     EventHandler::new(&tx);
 
     let mut active_timer: Option<Timer> = None;
+    let mut tick_count = 0;
+    let mut scramble = Scramble::default();
 
     loop {
         write!(
@@ -89,24 +89,6 @@ fn main() {
             termion::cursor::Goto(1, 1),
             termion::clear::All
         );
-
-        match &active_timer {
-            Some(t) => {
-                println!("Time: {}", t.time().as_millis());
-            }
-            None => {
-                let scramble = Scramble::default();
-                println!("{}", scramble);
-            }
-        }
-
-        write!(stdout, "{}", termion::cursor::Goto(1, 2));
-
-        println!("Count: {}\r", app.timers.len());
-
-        for timer in &app.timers {
-            println!("{}\r", timer.time().as_millis());
-        }
 
         if let Ok(msg) = rx.recv() {
             match msg {
@@ -117,6 +99,7 @@ fn main() {
                             Some(mut t) => {
                                 t.stop();
                                 app.timers.push(t);
+                                scramble = Scramble::default();
                                 None
                             }
                             None => Some(Timer::start()),
@@ -124,11 +107,27 @@ fn main() {
                     }
                     c => app.key_pressed = Some(c),
                 },
+                Event::Tick => {
+                    tick_count += 1;
+                    match &active_timer {
+                        Some(t) => {
+                            println!("Time: {}", t.time().as_millis());
+                        }
+                        None => {
+                            println!("{}", scramble);
+                        }
+                    }
+
+                    write!(stdout, "{}", termion::cursor::Goto(1, 2));
+
+                    println!("Count: {}, Tick Count: {}\r", app.timers.len(), tick_count);
+
+                    for timer in &app.timers {
+                        println!("{}\r", timer.time().as_millis());
+                    }
+                }
             };
         }
-
-
-        thread::sleep(Duration::from_millis(10));
     }
 
     write!(stdout, "{}", termion::cursor::Show);
