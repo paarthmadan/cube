@@ -47,15 +47,18 @@ impl Timer {
         }
     }
 
-    fn time(&self) -> Result<Duration, &'static str> {
-        match self.end {
-            Some(e) => Ok(e.duration_since(self.start)),
-            None => Err("No end time"),
+    fn stop(&mut self) {
+        let t = Instant::now();
+        if self.end.is_none() {
+            self.end = Some(t);
         }
     }
 
-    fn elapsed_time(&self) -> Duration {
-        self.start.elapsed()
+    fn time(&self) -> Duration {
+        match self.end {
+            Some(e) => e.duration_since(self.start),
+            None => self.start.elapsed(),
+        }
     }
 }
 
@@ -91,8 +94,7 @@ fn main() {
                     ' ' => {
                         active_timer = match active_timer {
                             Some(mut t) => {
-                                let end = Instant::now();
-                                t.end = Some(end);
+                                t.stop();
                                 app.timers.push(t);
                                 None
                             }
@@ -106,15 +108,17 @@ fn main() {
 
         match &active_timer {
             Some(t) => {
-                println!("Time: {}", t.elapsed_time().as_millis());
+                println!("Time: {}", t.time().as_millis());
             }
             None => println!("No active timer, press space to start"),
         }
 
         write!(stdout, "{}", termion::cursor::Goto(1, 2));
 
+        println!("Count: {}\r", app.timers.len());
+
         for timer in &app.timers {
-            println!("{}\r", timer.time().unwrap().as_millis());
+            println!("{}\r", timer.time().as_millis());
         }
 
         thread::sleep(Duration::from_millis(10));
