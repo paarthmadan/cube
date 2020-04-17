@@ -1,7 +1,10 @@
 extern crate termion;
 mod event_handler;
+mod scramble;
 
 use event_handler::{Event, EventHandler};
+use scramble::Scramble;
+
 use std::thread;
 
 use std::sync::mpsc::{channel};
@@ -87,7 +90,25 @@ fn main() {
             termion::clear::All
         );
 
-        if let Ok(msg) = rx.try_recv() {
+        match &active_timer {
+            Some(t) => {
+                println!("Time: {}", t.time().as_millis());
+            }
+            None => {
+                let scramble = Scramble::default();
+                println!("{}", scramble);
+            }
+        }
+
+        write!(stdout, "{}", termion::cursor::Goto(1, 2));
+
+        println!("Count: {}\r", app.timers.len());
+
+        for timer in &app.timers {
+            println!("{}\r", timer.time().as_millis());
+        }
+
+        if let Ok(msg) = rx.recv() {
             match msg {
                 Event::Input(c) => match c {
                     'q' => break,
@@ -106,20 +127,6 @@ fn main() {
             };
         }
 
-        match &active_timer {
-            Some(t) => {
-                println!("Time: {}", t.time().as_millis());
-            }
-            None => println!("No active timer, press space to start"),
-        }
-
-        write!(stdout, "{}", termion::cursor::Goto(1, 2));
-
-        println!("Count: {}\r", app.timers.len());
-
-        for timer in &app.timers {
-            println!("{}\r", timer.time().as_millis());
-        }
 
         thread::sleep(Duration::from_millis(10));
     }

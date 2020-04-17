@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 termion = "1.0.0"
+rand = "0.7"
