@@ -1,4 +1,4 @@
-use std::sync::mpsc::{channel, Receiver, Sender};
+use std::sync::mpsc::{Sender};
 use std::thread;
 
 use termion::event::Key;
@@ -15,12 +15,8 @@ pub struct EventHandler {
 }
 
 impl EventHandler {
-    pub fn new() -> Receiver<Event> {
-        let (tx, rx) = channel();
-
+    pub fn new(tx: &Sender<Event>) {
         EventHandler::create_handler(&tx);
-
-        rx
     }
 
     fn create_handler(tx: &Sender<Event>) {

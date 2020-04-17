@@ -4,6 +4,8 @@ mod event_handler;
 use event_handler::{Event, EventHandler};
 use std::thread;
 
+use std::sync::mpsc::{channel};
+
 use std::time::{Duration, Instant};
 
 use termion::raw::IntoRawMode;
@@ -69,7 +71,8 @@ fn main() {
     write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide);
     stdout.flush().unwrap();
 
-    let rx = EventHandler::new();
+    let (tx, rx) = channel();
+    EventHandler::new(&tx);
 
     let mut active_timer: Option<Timer> = None;
 
