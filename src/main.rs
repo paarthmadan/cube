@@ -49,28 +49,50 @@ fn main() -> Result<(), io::Error> {
             )
             .split(f.size());
 
-        let header = Block::default().title("Solving Area").borders(Borders::ALL);
+        let a_chunks = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(
+                [
+                    Constraint::Percentage(50),
+                    Constraint::Percentage(50),
+                ].as_ref()
+            )
+            .margin(1)
+            .split(layout[0]);
+
+
+        let header = Block::default().title("Solving Area").borders(Borders::ALL).render(&mut f, layout[0]);
         let stats = Block::default()
              .title("Statistics")
              .borders(Borders::ALL)
              .render(&mut f, layout[1]);
 
+        let b_chunks = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(
+                [
+                    Constraint::Max(1),
+                    Constraint::Max(1),
+                ].as_ref()
+            )
+            .margin(1)
+            .split(a_chunks[0]);
+
         let text = [Text::styled(data.scramble_string, Style::default().fg(Color::Blue))];
 
         let scramble_text = Paragraph::new(text.iter())
-            .block(header)
             .style(Style::default().fg(Color::White).bg(Color::Black))
             .alignment(Alignment::Center)
             .wrap(true)
-            .render(&mut f, layout[0]);
+            .render(&mut f, b_chunks[0]);
 
         let text = [Text::styled(data.time_string, Style::default().fg(Color::Red))];
 
         let time_text = Paragraph::new(text.iter())
-            .block(header)
+            .block(Block::default().borders(Borders::ALL))
             .style(Style::default().fg(Color::White).bg(Color::Black))
             .alignment(Alignment::Center)
             .wrap(true)
-            .render(&mut f, layout[0]);
+            .render(&mut f, b_chunks[1]);
     })
 }
