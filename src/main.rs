@@ -28,8 +28,6 @@ pub struct SampleData {
     points: Vec<(f64, f64)>,
 }
 
-
-
 struct App {
     timers: Vec<Timer>,
     key_pressed: Option<char>,
@@ -109,13 +107,15 @@ impl Timer {
 // Main thread listens on channel for events
 // Main thread handles state change
 
-fn main() {
+fn main() -> Result<(), io::Error> {
     let mut app = App::default();
 
-    let mut stdout = stdout().into_raw_mode().unwrap();
+    let stdout = io::stdout().into_raw_mode()?;
+    let backend = TermionBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
 
-    write!(stdout, "{}{}", termion::clear::All, termion::cursor::Hide);
-    stdout.flush().unwrap();
+    let data = SampleData::new();
+
 
     let (tx, rx) = channel();
     EventHandler::new(&tx);
@@ -124,14 +124,9 @@ fn main() {
     let mut tick_count = 0;
     let mut scramble = Scramble::default();
 
-    loop {
-        write!(
-            stdout,
-            "{}{}",
-            termion::cursor::Goto(1, 1),
-            termion::clear::All
-        );
+    let mut sample_data = SampleData::new();
 
+    loop {
         if let Ok(msg) = rx.recv() {
             match msg {
                 Event::Input(c) => match c {
@@ -153,24 +148,16 @@ fn main() {
                     tick_count += 1;
                     match &active_timer {
                         Some(t) => {
-                            println!("Time: {}", t.time().as_millis());
+                            sample_data.time_string = t.time().as_millis().to_string();
                         }
                         None => {
-                            println!("{}", scramble);
+                            sample_data.scramble_string = scramble.to_string();
                         }
                     }
-
-                    write!(stdout, "{}", termion::cursor::Goto(1, 2));
-
-                    println!("Count: {}, Tick Count: {}\r", app.timers.len(), tick_count);
-
-                    for timer in &app.timers {
-                        println!("{}\r", timer.time().as_millis());
-                    }
+                    terminal.draw(|mut f| ui::draw(&mut f, &sample_data) ).unwrap();
                 }
             };
         }
     }
-
-    write!(stdout, "{}", termion::cursor::Show);
+    Ok(())
 }
