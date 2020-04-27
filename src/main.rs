@@ -9,6 +9,8 @@ use scramble::Scramble;
 
 use std::sync::mpsc::channel;
 
+use std::cell::RefCell;
+
 use std::time::{Duration, Instant};
 
 use termion::raw::IntoRawMode;
@@ -19,44 +21,42 @@ use std::io;
 use tui::Terminal;
 use tui::backend::TermionBackend;
 
-pub struct SampleData {
-    scramble_string: String,
-    time_string: String,
-    cube_type_string: String,
-    last_10_solves: Vec<f32>,
+pub struct App {
+    active_timer: Option<Timer>,
+    scramble: Scramble,
+    timers: Vec<Timer>,
+    is_timing: bool,
     average_text: Vec<String>,
     points: Vec<(f64, f64)>,
 }
 
-struct App {
-    timers: Vec<Timer>,
-    key_pressed: Option<char>,
-    is_timing: bool,
-}
-
 impl App {
+    fn new_scramble(&mut self) {
+        self.scramble = Scramble::default();
+    }
+
     fn toggle(&mut self) {
-        self.is_timing = !self.is_timing;
+        if self.is_timing {
+            let mut timer = self.active_timer.unwrap();
+            timer.stop();
+            self.timers.push(timer);
+            self.scramble = Scramble::default();
+            self.active_timer = None;
+            self.is_timing = false;
+        } else {
+            self.active_timer = Some(Timer::start());
+            self.is_timing = true;
+        }
     }
 }
 
 impl Default for App {
     fn default() -> App {
         App {
-            timers: Vec::new(),
-            key_pressed: None,
             is_timing: false,
-        }
-    }
-}
-
-impl SampleData {
-    fn new() -> Self {
-        SampleData {
-            scramble_string: "L R U2 F' B' D2 U' L' R' U F B' U2 B' F R2 L2".to_string(),
-            time_string: "12.34".to_string(),
-            cube_type_string: "3x3".to_string(),
-            last_10_solves: vec![12.34, 6.54, 5.55, 6.24, 21.54, 10.00, 64.32, 10f32, 4.44, 3.33],
+            active_timer: None,
+            scramble: Scramble::default(),
+            timers: Vec::new(),
             average_text: vec![
                 "ao5: 25.11".to_string(),
                 "ao12: 25.11".to_string(),
@@ -71,10 +71,12 @@ impl SampleData {
                 (4.0, 3.0),
                 (5.0, 7.0),
             ]
+
         }
     }
 }
 
+#[derive(Copy, Clone)]
 struct Timer {
     start: Instant,
     end: Option<Instant>,
@@ -114,50 +116,29 @@ fn main() -> Result<(), io::Error> {
     let backend = TermionBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
-    let data = SampleData::new();
-
+    terminal.clear()?;
+    terminal.hide_cursor()?;
 
     let (tx, rx) = channel();
     EventHandler::new(&tx);
-
-    let mut active_timer: Option<Timer> = None;
-    let mut tick_count = 0;
-    let mut scramble = Scramble::default();
-
-    let mut sample_data = SampleData::new();
 
     loop {
         if let Ok(msg) = rx.recv() {
             match msg {
                 Event::Input(c) => match c {
                     'q' => break,
-                    ' ' => {
-                        active_timer = match active_timer {
-                            Some(mut t) => {
-                                t.stop();
-                                app.timers.push(t);
-                                scramble = Scramble::default();
-                                None
-                            }
-                            None => Some(Timer::start()),
-                        };
-                    }
-                    c => app.key_pressed = Some(c),
+                    ' ' => app.toggle(),
+                    _ => continue,
                 },
                 Event::Tick => {
-                    tick_count += 1;
-                    match &active_timer {
-                        Some(t) => {
-                            sample_data.time_string = t.time().as_millis().to_string();
-                        }
-                        None => {
-                            sample_data.scramble_string = scramble.to_string();
-                        }
-                    }
-                    terminal.draw(|mut f| ui::draw(&mut f, &sample_data) ).unwrap();
+                    terminal.draw(|mut f| ui::draw(&mut f, &app) ).unwrap();
                 }
             };
         }
     }
+
+    terminal.clear()?;
+    terminal.show_cursor()?;
+
     Ok(())
 }

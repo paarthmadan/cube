@@ -1,4 +1,4 @@
-use super::SampleData;
+use super::App;
 
 use tui::{backend::Backend, Frame};
 use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
@@ -9,7 +9,7 @@ use tui::layout::{Layout, Constraint, Direction, Alignment};
 use tui::style::{Color, Style, Modifier};
 
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, data: &SampleData) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
 let size = f.size();
 
         let layout = Layout::default()
@@ -46,19 +46,31 @@ let size = f.size();
                 ].as_ref()
             ).split(layout[1]);
 
-        Paragraph::new([Text::styled(&data.scramble_string, Style::default().fg(Color::Red))].iter())
+        let time_string = match data.active_timer {
+            Some(timer) => timer.time().as_millis().to_string(),
+            None => {
+                if data.timers.is_empty() {
+                    "0.00".to_string()
+                } else {
+                    data.timers.last().unwrap().time().as_millis().to_string()
+                }
+            }
+        };
+
+        Paragraph::new([Text::styled(&data.scramble.to_string(), Style::default().fg(Color::Red))].iter())
             .block(Block::default().borders(Borders::ALL))
             .alignment(Alignment::Center)
             .wrap(true)
             .render(f, info[0]);
 
-        Paragraph::new([Text::styled(&data.time_string, Style::default().fg(Color::Red))].iter())
+
+        Paragraph::new([Text::styled(&time_string, Style::default().fg(Color::Red))].iter())
             .block(Block::default().borders(Borders::ALL))
             .alignment(Alignment::Center)
             .wrap(true)
             .render(f, info[1]);
 
-        Paragraph::new([Text::styled(&data.cube_type_string, Style::default().fg(Color::Red))].iter())
+        Paragraph::new([Text::styled(&"3x3".to_string(), Style::default().fg(Color::Red))].iter())
             .block(Block::default().borders(Borders::ALL))
             .alignment(Alignment::Center)
             .wrap(true)
@@ -82,7 +94,7 @@ let size = f.size();
         let graph = stats[2];
 
 
-        let text: Vec<Text> = data.last_10_solves.iter().map(|s| Text::styled(s.to_string() + "\n", Style::default().fg(Color::White))).collect();
+        let text: Vec<Text> = data.timers.iter().map(|s| Text::styled(s.time().as_millis().to_string() + "\n", Style::default().fg(Color::White))).collect();
 
         Paragraph::new(text.iter())
             .block(Block::default().title("Recent Solves").borders(Borders::ALL))
