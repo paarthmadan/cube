@@ -94,7 +94,9 @@ let size = f.size();
         let graph = stats[2];
 
 
-        let text: Vec<Text> = data.timers.iter().map(|s| Text::styled(s.time().as_millis().to_string() + "\n", Style::default().fg(Color::White))).collect();
+        // TODO: Limit the number of times you pull, this would get wasteful the moment they go off
+        // the screen
+        let text: Vec<Text> = data.timers.iter().rev().map(|s| Text::styled(s.time().as_millis().to_string() + "\n", Style::default().fg(Color::White))).collect();
 
         Paragraph::new(text.iter())
             .block(Block::default().title("Recent Solves").borders(Borders::ALL))
