@@ -90,7 +90,7 @@ impl Default for Scramble {
                         r = rand::random();
                     }
                     r
-                },
+                }
                 None => r,
             };
 

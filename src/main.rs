@@ -1,8 +1,8 @@
 extern crate termion;
 
 mod event_handler;
-mod ui;
 mod scramble;
+mod ui;
 
 use event_handler::{Event, EventHandler};
 use scramble::Scramble;
@@ -18,8 +18,8 @@ use termion::raw::IntoRawMode;
 use std::io::{stdout, Write};
 
 use std::io;
-use tui::Terminal;
 use tui::backend::TermionBackend;
+use tui::Terminal;
 
 pub struct App {
     active_timer: Option<Timer>,
@@ -64,14 +64,7 @@ impl Default for App {
                 "ao100: 25.11".to_string(),
                 "stdev: 2.55".to_string(),
             ],
-            points: vec![
-                (1.0, 1.0),
-                (2.0, 2.0),
-                (3.0, 1.0),
-                (4.0, 3.0),
-                (5.0, 7.0),
-            ]
-
+            points: vec![(1.0, 1.0), (2.0, 2.0), (3.0, 1.0), (4.0, 3.0), (5.0, 7.0)],
         }
     }
 }
@@ -131,7 +124,7 @@ fn main() -> Result<(), io::Error> {
                     _ => continue,
                 },
                 Event::Tick => {
-                    terminal.draw(|mut f| ui::draw(&mut f, &app) ).unwrap();
+                    terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap();
                 }
             };
         }
