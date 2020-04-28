@@ -1,13 +1,10 @@
 use super::App;
 
-use termion::{input::MouseTerminal, raw::IntoRawMode, screen::AlternateScreen};
-use tui::backend::TermionBackend;
 use tui::layout::{Alignment, Constraint, Direction, Layout};
-use tui::style::{Color, Modifier, Style};
+use tui::style::{Color, Style};
 use tui::widgets::{
-    Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, SelectableList, Text, Widget,
+    Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget,
 };
-use tui::Terminal;
 use tui::{backend::Backend, Frame};
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {

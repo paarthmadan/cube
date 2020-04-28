@@ -9,13 +9,10 @@ use scramble::Scramble;
 
 use std::sync::mpsc::channel;
 
-use std::cell::RefCell;
 
 use std::time::{Duration, Instant};
 
 use termion::raw::IntoRawMode;
-
-use std::io::{stdout, Write};
 
 use std::io;
 use tui::backend::TermionBackend;
@@ -39,8 +36,10 @@ impl App {
         if self.is_timing {
             let mut timer = self.active_timer.unwrap();
             timer.stop();
+
             self.timers.push(timer);
-            self.scramble = Scramble::default();
+            self.new_scramble();
+
             self.active_timer = None;
             self.is_timing = false;
         } else {
