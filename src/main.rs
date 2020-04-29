@@ -27,8 +27,8 @@ fn main() -> Result<(), io::Error> {
     terminal.hide_cursor()?;
 
     loop {
-        if let Ok(msg) = app.process_event() {
-            match msg {
+        if let Ok(event) = app.process_event() {
+            match event {
                 Event::Input(c) => match c {
                     'q' => break,
                     ' ' => app.toggle(),

@@ -1,4 +1,4 @@
-use super::event_handler::{Event, EventHandler};
+use super::{event_handler::{create_handlers, Event}};
 use super::scramble::Scramble;
 use super::timer::Timer;
 
@@ -43,7 +43,7 @@ impl App {
 impl Default for App {
     fn default() -> App {
         let (tx, rx) = channel();
-        EventHandler::new(&tx);
+        create_handlers(&tx);
 
         App {
             rx: rx,

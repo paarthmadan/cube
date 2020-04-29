@@ -13,21 +13,11 @@ pub enum Event {
     Tick,
 }
 
-pub struct EventHandler {
-    tx: Sender<Event>,
-}
-
-impl EventHandler {
-    pub fn new(tx: &Sender<Event>) {
-        EventHandler::create_handler(&tx);
-    }
-
-    fn create_handler(tx: &Sender<Event>) {
-        let tx_key = Sender::clone(tx);
-        let tx_ticker = Sender::clone(tx);
-        thread::spawn(move || keyboard_handler(tx_key));
-        thread::spawn(move || app_ticker(tx_ticker));
-    }
+pub fn create_handlers(tx: &Sender<Event>) {
+    let tx_key = Sender::clone(tx);
+    let tx_ticker = Sender::clone(tx);
+    thread::spawn(move || keyboard_handler(tx_key));
+    thread::spawn(move || app_ticker(tx_ticker));
 }
 
 fn keyboard_handler(tx: Sender<Event>) {
