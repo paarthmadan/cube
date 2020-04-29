@@ -1,14 +1,13 @@
 extern crate termion;
 
+mod app;
 mod event_handler;
 mod scramble;
 mod timer;
 mod ui;
-mod app;
 
-use event_handler::{Event, EventHandler};
+use event_handler::Event;
 
-use std::sync::mpsc::channel;
 use termion::raw::IntoRawMode;
 
 use std::io;
@@ -27,20 +26,15 @@ fn main() -> Result<(), io::Error> {
     terminal.clear()?;
     terminal.hide_cursor()?;
 
-    let (tx, rx) = channel();
-    EventHandler::new(&tx);
-
     loop {
-        if let Ok(msg) = rx.recv() {
+        if let Ok(msg) = app.process_event() {
             match msg {
                 Event::Input(c) => match c {
                     'q' => break,
                     ' ' => app.toggle(),
                     _ => continue,
                 },
-                Event::Tick => {
-                    terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap();
-                }
+                Event::Tick => terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap(),
             };
         }
     }

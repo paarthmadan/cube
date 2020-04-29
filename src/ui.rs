@@ -2,9 +2,7 @@ use super::App;
 
 use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::style::{Color, Style};
-use tui::widgets::{
-    Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget,
-};
+use tui::widgets::{Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget};
 use tui::{backend::Backend, Frame};
 
 pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
