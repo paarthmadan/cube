@@ -26,8 +26,10 @@ fn main() -> Result<(), io::Error> {
     terminal.clear()?;
     terminal.hide_cursor()?;
 
+    let rx = event_handler::create_handlers();
+
     loop {
-        if let Ok(event) = app.process_event() {
+        if let Ok(event) = rx.recv() {
             match event {
                 Event::Input(c) => match c {
                     'q' => break,

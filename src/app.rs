@@ -1,8 +1,5 @@
-use super::{event_handler::{create_handlers, Event}};
 use super::scramble::Scramble;
 use super::timer::Timer;
-
-use std::sync::mpsc::{channel, Receiver, RecvError};
 
 pub struct App {
     pub active_timer: Option<Timer>,
@@ -11,7 +8,6 @@ pub struct App {
     pub is_timing: bool,
     pub average_text: Vec<String>,
     pub points: Vec<(f64, f64)>,
-    pub rx: Receiver<Event>,
 }
 
 impl App {
@@ -34,19 +30,12 @@ impl App {
             self.is_timing = true;
         }
     }
-
-    pub fn process_event(&mut self) -> Result<Event, RecvError> {
-        self.rx.recv()
-    }
 }
 
 impl Default for App {
     fn default() -> App {
-        let (tx, rx) = channel();
-        create_handlers(&tx);
 
         App {
-            rx: rx,
             is_timing: false,
             active_timer: None,
             scramble: Scramble::default(),

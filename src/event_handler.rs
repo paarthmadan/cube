@@ -1,4 +1,4 @@
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
 
 use std::time::Duration;
@@ -13,11 +13,16 @@ pub enum Event {
     Tick,
 }
 
-pub fn create_handlers(tx: &Sender<Event>) {
-    let tx_key = Sender::clone(tx);
-    let tx_ticker = Sender::clone(tx);
+pub fn create_handlers() -> Receiver<Event> {
+    let (tx, rx) = channel();
+
+    let tx_key = Sender::clone(&tx);
+    let tx_ticker = Sender::clone(&tx);
+
     thread::spawn(move || keyboard_handler(tx_key));
     thread::spawn(move || app_ticker(tx_ticker));
+
+    rx
 }
 
 fn keyboard_handler(tx: Sender<Event>) {
