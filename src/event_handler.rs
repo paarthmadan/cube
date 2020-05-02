@@ -1,3 +1,4 @@
+use super::app::INSPECTION_TIME;
 use std::sync::mpsc::{channel, Sender, Receiver};
 use std::thread;
 
@@ -10,19 +11,20 @@ use std::io::stdin;
 
 pub enum Event {
     Input(char),
-    Tick,
+    DrawInterrupt,
+    InspectionInterrupt,
 }
 
-pub fn create_handlers() -> Receiver<Event> {
+pub fn create_handlers() -> (Sender<Event>, Receiver<Event>) {
     let (tx, rx) = channel();
 
     let tx_key = Sender::clone(&tx);
     let tx_ticker = Sender::clone(&tx);
 
     thread::spawn(move || keyboard_handler(tx_key));
-    thread::spawn(move || app_ticker(tx_ticker));
+    thread::spawn(move || redraw_interrupt_handler(tx_ticker));
 
-    rx
+    (tx, rx)
 }
 
 fn keyboard_handler(tx: Sender<Event>) {
@@ -42,12 +44,25 @@ fn keyboard_handler(tx: Sender<Event>) {
     }
 }
 
-fn app_ticker(tx: Sender<Event>) {
+fn redraw_interrupt_handler(tx: Sender<Event>) {
     loop {
-        if let Err(_) = tx.send(Event::Tick) {
+        if let Err(_) = tx.send(Event::DrawInterrupt) {
             break;
         };
 
         thread::sleep(Duration::from_millis(50));
+    }
+}
+
+pub fn spawn_inspection_thread(tx: Sender<Event>) {
+    thread::spawn(move || start_inspection_timer(tx));
+}
+
+fn start_inspection_timer(tx: Sender<Event>) {
+    for _ in 0..15 {
+        if let Err(_) = tx.send(Event::InspectionInterrupt) {
+            break;
+        }
+        thread::sleep(Duration::from_millis(1000));
     }
 }

@@ -1,11 +1,11 @@
-use super::App;
+use super::app::{App, State};
 
 use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::style::{Color, Style};
 use tui::widgets::{Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget};
 use tui::{backend::Backend, Frame};
 
-pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
+pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     let size = f.size();
 
     let layout = Layout::default()
@@ -45,20 +45,27 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
         )
         .split(layout[1]);
 
-    let time_string = match data.active_timer {
-        Some(timer) => timer.time().as_millis().to_string(),
-        None => {
-            if data.timers.is_empty() {
-                "0.00".to_string()
-            } else {
-                data.timers.last().unwrap().time().as_millis().to_string()
+    let time_string = match app.state {
+        State::Idle | State::Timing => {
+            match app.active_timer {
+                Some(timer) => timer.time().as_millis().to_string(),
+                None => {
+                    if app.timers.is_empty() {
+                        "0.00".to_string()
+                    } else {
+                        app.timers.last().unwrap().time().as_millis().to_string()
+                    }
+                }
             }
+        },
+        State::Inspection(time) => {
+            time.to_string()
         }
     };
 
     Paragraph::new(
         [Text::styled(
-            &data.scramble.to_string(),
+            &app.scramble.to_string(),
             Style::default().fg(Color::Red),
         )]
         .iter(),
@@ -106,7 +113,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
 
     // TODO: Limit the number of times you pull, this would get wasteful the moment they go off
     // the screen
-    let text: Vec<Text> = data
+    let text: Vec<Text> = app
         .timers
         .iter()
         .rev()
@@ -127,7 +134,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
         .alignment(Alignment::Left)
         .render(f, recent);
 
-    let text: Vec<Text> = data
+    let text: Vec<Text> = app
         .average_text
         .iter()
         .map(|s| Text::styled(s.to_string() + "\n", Style::default().fg(Color::White)))
@@ -142,7 +149,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, data: &App) {
         .name("All time solves")
         .marker(Marker::Dot)
         .style(Style::default().fg(Color::Cyan))
-        .data(&data.points);
+        .data(&app.points);
 
     Chart::default()
         .block(Block::default().title("Solves").borders(Borders::ALL))

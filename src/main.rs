@@ -26,17 +26,16 @@ fn main() -> Result<(), io::Error> {
     terminal.clear()?;
     terminal.hide_cursor()?;
 
-    let rx = event_handler::create_handlers();
-
     loop {
-        if let Ok(event) = rx.recv() {
+        if let Ok(event) = app.process_event() {
             match event {
                 Event::Input(c) => match c {
                     'q' => break,
                     ' ' => app.toggle(),
                     _ => continue,
                 },
-                Event::Tick => terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap(),
+                Event::InspectionInterrupt => { app.countdown(); },
+                Event::DrawInterrupt => terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap(),
             };
         }
     }
