@@ -2,7 +2,6 @@ use super::scramble::Scramble;
 use super::timer::Timer;
 use super::event_handler;
 use super::event_handler::Event;
-
 use std::sync::mpsc::{Sender, Receiver, RecvError};
 
 use State::*;
@@ -33,20 +32,6 @@ impl App {
         self.scramble = Scramble::default();
     }
 
-    pub fn countdown(&mut self) {
-        match &mut self.state {
-            Inspection(time) => {
-                let new_time = *time - 1;
-                if new_time == 0 {
-                    self.start_timing();
-                } else {
-                    self.state = Inspection(*time - 1);
-                }
-            }
-            _ => {},
-        }
-    }
-
     fn start_timing(&mut self) {
         self.active_timer = Some(Timer::start());
         self.state = Timing;
@@ -57,11 +42,29 @@ impl App {
         self.state = Idle;
     }
 
-    pub fn start_inspection(&mut self) {
+    fn start_inspection(&mut self) {
         self.state = Inspection(INSPECTION_TIME);
+        self.spawn_inspection_thread();
+    }
 
+    fn spawn_inspection_thread(&self) {
         let tx_inspection = Sender::clone(&self.tx);
         event_handler::spawn_inspection_thread(tx_inspection);
+    }
+
+    pub fn inspection_countdown(&mut self) {
+        match &mut self.state {
+            Inspection(time) => {
+                let new_time = *time - 1;
+                if new_time == 0 {
+                    self.start_timing();
+                } else {
+                    self.state = Inspection(*time - 1);
+                    self.spawn_inspection_thread();
+                }
+            }
+            _ => {},
+        }
     }
 
     pub fn toggle(&mut self) {
@@ -95,7 +98,7 @@ impl App {
 
 impl Default for App {
     fn default() -> App {
-        let (tx, rx) = event_handler::create_handlers();
+        let (tx, rx) = event_handler::spawn_event_threads();
 
         App {
             tx,

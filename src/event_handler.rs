@@ -15,19 +15,19 @@ pub enum Event {
     InspectionInterrupt,
 }
 
-pub fn create_handlers() -> (Sender<Event>, Receiver<Event>) {
+pub fn spawn_event_threads() -> (Sender<Event>, Receiver<Event>) {
     let (tx, rx) = channel();
 
     let tx_key = Sender::clone(&tx);
     let tx_ticker = Sender::clone(&tx);
 
-    thread::spawn(move || keyboard_handler(tx_key));
-    thread::spawn(move || redraw_interrupt_handler(tx_ticker));
+    thread::spawn(move || keyboard_thread(tx_key));
+    thread::spawn(move || redraw_interrupt_thread(tx_ticker));
 
     (tx, rx)
 }
 
-fn keyboard_handler(tx: Sender<Event>) {
+fn keyboard_thread(tx: Sender<Event>) {
     let stdin = stdin();
     for event in stdin.keys() {
         if let Ok(event) = event {
@@ -44,7 +44,7 @@ fn keyboard_handler(tx: Sender<Event>) {
     }
 }
 
-fn redraw_interrupt_handler(tx: Sender<Event>) {
+fn redraw_interrupt_thread(tx: Sender<Event>) {
     loop {
         if let Err(_) = tx.send(Event::DrawInterrupt) {
             break;
@@ -55,14 +55,10 @@ fn redraw_interrupt_handler(tx: Sender<Event>) {
 }
 
 pub fn spawn_inspection_thread(tx: Sender<Event>) {
-    thread::spawn(move || start_inspection_timer(tx));
-}
-
-fn start_inspection_timer(tx: Sender<Event>) {
-    for _ in 0..15 {
-        if let Err(_) = tx.send(Event::InspectionInterrupt) {
-            break;
-        }
+    thread::spawn(move || {
         thread::sleep(Duration::from_millis(1000));
-    }
+        if let Err(_) = tx.send(Event::InspectionInterrupt) {
+            return;
+        }
+    });
 }
