@@ -1,8 +1,8 @@
-use super::scramble::Scramble;
-use super::timer::Timer;
 use super::event_handler;
 use super::event_handler::Event;
-use std::sync::mpsc::{Sender, Receiver, RecvError};
+use super::scramble::Scramble;
+use super::timer::Timer;
+use std::sync::mpsc::{Receiver, RecvError, Sender};
 
 use State::*;
 
@@ -63,7 +63,7 @@ impl App {
                     self.spawn_inspection_thread();
                 }
             }
-            _ => {},
+            _ => {}
         }
     }
 
@@ -75,10 +75,8 @@ impl App {
                 } else {
                     self.start_timing();
                 }
-            },
-            Inspection(_) => {
-                self.start_timing()
             }
+            Inspection(_) => self.start_timing(),
             Timing => {
                 let mut timer = self.active_timer.unwrap();
                 timer.stop();
@@ -87,7 +85,7 @@ impl App {
                 self.new_scramble();
 
                 self.stop_timing();
-            },
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 use super::app::INSPECTION_TIME;
-use std::sync::mpsc::{channel, Sender, Receiver};
+use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 
 use std::time::Duration;

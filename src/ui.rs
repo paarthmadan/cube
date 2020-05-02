@@ -46,21 +46,17 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .split(layout[1]);
 
     let time_string = match app.state {
-        State::Idle | State::Timing => {
-            match app.active_timer {
-                Some(timer) => timer.time().as_millis().to_string(),
-                None => {
-                    if app.timers.is_empty() {
-                        "0.00".to_string()
-                    } else {
-                        app.timers.last().unwrap().time().as_millis().to_string()
-                    }
+        State::Idle | State::Timing => match app.active_timer {
+            Some(timer) => timer.time().as_millis().to_string(),
+            None => {
+                if app.timers.is_empty() {
+                    "0.00".to_string()
+                } else {
+                    app.timers.last().unwrap().time().as_millis().to_string()
                 }
             }
         },
-        State::Inspection(time) => {
-            time.to_string()
-        }
+        State::Inspection(time) => time.to_string(),
     };
 
     Paragraph::new(

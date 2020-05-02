@@ -34,7 +34,9 @@ fn main() -> Result<(), io::Error> {
                     ' ' => app.toggle(),
                     _ => continue,
                 },
-                Event::InspectionInterrupt => { app.inspection_countdown(); },
+                Event::InspectionInterrupt => {
+                    app.inspection_countdown();
+                }
                 Event::DrawInterrupt => terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap(),
             };
         }
