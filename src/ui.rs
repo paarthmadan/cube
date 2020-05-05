@@ -131,9 +131,16 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .render(f, recent);
 
     let text: Vec<Text> = app
-        .average_text
+        .compute_statistics()
         .iter()
-        .map(|s| Text::styled(s.to_string() + "\n", Style::default().fg(Color::White)))
+        .map(|(label, value)| {
+            let value = match value {
+                Some(v) => v.as_millis().to_string(),
+                None => String::from("NA"),
+            };
+            let text = format!("{}: {}\n", label, value);
+            Text::styled(text, Style::default().fg(Color::White))
+        })
         .collect();
 
     Paragraph::new(text.iter())

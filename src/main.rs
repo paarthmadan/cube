@@ -3,6 +3,7 @@ extern crate termion;
 mod app;
 mod event_handler;
 mod scramble;
+mod statistic;
 mod timer;
 mod ui;
 

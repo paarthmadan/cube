@@ -1,6 +1,7 @@
 use super::event_handler;
 use super::event_handler::Event;
 use super::scramble::Scramble;
+use super::statistic::Statistic;
 use super::timer::Timer;
 use std::sync::mpsc::{Receiver, RecvError, Sender};
 use std::time::Duration;
@@ -15,6 +16,15 @@ pub enum State {
 
 const INSPECTION: bool = true;
 pub const INSPECTION_TIME: u8 = 15;
+
+const STATISTIC_SET: [Statistic; 6] = [
+    Statistic::Average(5),
+    Statistic::Average(12),
+    Statistic::Average(50),
+    Statistic::Average(100),
+    Statistic::Best,
+    Statistic::Worst,
+];
 
 pub struct App {
     pub state: State,
@@ -51,6 +61,13 @@ impl App {
     fn spawn_inspection_thread(&self) {
         let tx_inspection = Sender::clone(&self.tx);
         event_handler::spawn_inspection_thread(tx_inspection);
+    }
+
+    pub fn compute_statistics(&self) -> Vec<(String, Option<Duration>)> {
+        STATISTIC_SET
+            .iter()
+            .map(|stat| (stat.label(), stat.compute(&self.times)))
+            .collect()
     }
 
     pub fn inspection_countdown(&mut self) {
