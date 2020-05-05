@@ -5,6 +5,13 @@ use tui::style::{Color, Style};
 use tui::widgets::{Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget};
 use tui::{backend::Backend, Frame};
 
+// Beautiful gradient text, that I can't use because of limitations in the crate
+// Follow https://github.com/fdehau/tui-rs/issues/88 for updates
+
+const CUBETIMER_TEXT: &str = concat!(
+    "\x1b[38;5;201mc\x1b[38;5;201mu\x1b[38;5;207mb\x1b[38;5;207me",
+    "\x1b[38;5;213mt\x1b[38;5;219mi\x1b[38;5;219mm\x1b[38;5;225me\x1b[38;5;225mr");
+
 // TODO: Seperate this draw method into a set of private methods to separate concerns
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     let size = f.size();
