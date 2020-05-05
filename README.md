@@ -1,16 +1,18 @@
 # Cube Timer
+A tui-based Rubik's cube timer written in _Rust_.
 
-### Goal
+#### Feature List
 
-Create a clean, minimal, cube timer capable of providing scrambles, timing solves, storing times, computing averages and other statistics, and storing this data
-
-### MVP
-
-- [ ] Basic TUI
-- [x] Scrambles
 - [x] Timer
+- [x] Basic TUI
+- [x] Scramble generator
+- [x] Statistics
+- [x] Solve graph
 
-### Not on the critical path
-- [ ] Persisting data
-- [ ] Statistics
+#### Not yet implemented
+- [ ] Persisting data across sessions (high priority)
+- [ ] Minimizing CPU usage
+- [ ] Toggling between different cube sessions
+- [ ] Custom configuration (colours etc.)
+- [ ] Optimizing UI for different frame sizes (right now it's ideally used in a small tmux pane off to the side :/)
 
