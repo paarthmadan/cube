@@ -33,7 +33,6 @@ pub struct App {
     pub times: Vec<Duration>,
     pub is_timing: bool,
     pub average_text: Vec<String>,
-    pub points: Vec<(f64, f64)>,
     tx: Sender<Event>,
     rx: Receiver<Event>,
 }
@@ -131,7 +130,6 @@ impl Default for App {
                 "ao100: 25.11".to_string(),
                 "stdev: 2.55".to_string(),
             ],
-            points: vec![(1.0, 1.0), (2.0, 2.0), (3.0, 1.0), (4.0, 3.0), (5.0, 7.0)],
         }
     }
 }
