@@ -3,6 +3,7 @@ use super::event_handler::Event;
 use super::scramble::Scramble;
 use super::timer::Timer;
 use std::sync::mpsc::{Receiver, RecvError, Sender};
+use std::time::Duration;
 
 use State::*;
 
@@ -19,7 +20,7 @@ pub struct App {
     pub state: State,
     pub active_timer: Option<Timer>,
     pub scramble: Scramble,
-    pub timers: Vec<Timer>,
+    pub times: Vec<Duration>,
     pub is_timing: bool,
     pub average_text: Vec<String>,
     pub points: Vec<(f64, f64)>,
@@ -59,7 +60,7 @@ impl App {
                 if new_time == 0 {
                     self.start_timing();
                 } else {
-                    self.state = Inspection(*time - 1);
+                    self.state = Inspection(new_time);
                     self.spawn_inspection_thread();
                 }
             }
@@ -81,7 +82,7 @@ impl App {
                 let mut timer = self.active_timer.unwrap();
                 timer.stop();
 
-                self.timers.push(timer);
+                self.times.push(timer.time());
                 self.new_scramble();
 
                 self.stop_timing();
@@ -105,7 +106,7 @@ impl Default for App {
             is_timing: false,
             active_timer: None,
             scramble: Scramble::default(),
-            timers: Vec::new(),
+            times: Vec::new(),
             average_text: vec![
                 "ao5: 25.11".to_string(),
                 "ao12: 25.11".to_string(),

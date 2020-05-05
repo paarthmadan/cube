@@ -49,10 +49,10 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         State::Idle | State::Timing => match app.active_timer {
             Some(timer) => timer.time().as_millis().to_string(),
             None => {
-                if app.timers.is_empty() {
+                if app.times.is_empty() {
                     "0.00".to_string()
                 } else {
-                    app.timers.last().unwrap().time().as_millis().to_string()
+                    app.times.last().unwrap().as_millis().to_string()
                 }
             }
         },
@@ -110,12 +110,12 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     // TODO: Limit the number of times you pull, this would get wasteful the moment they go off
     // the screen
     let text: Vec<Text> = app
-        .timers
+        .times
         .iter()
         .rev()
         .map(|s| {
             Text::styled(
-                s.time().as_millis().to_string() + "\n",
+                s.as_millis().to_string() + "\n",
                 Style::default().fg(Color::White),
             )
         })
