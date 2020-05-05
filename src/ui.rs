@@ -47,12 +47,12 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
 
     let time_string = match app.state {
         State::Idle | State::Timing => match app.active_timer {
-            Some(timer) => timer.time().as_millis().to_string(),
+            Some(timer) => format!("{:.4}", timer.time().as_secs_f64()),
             None => {
                 if app.times.is_empty() {
-                    "0.00".to_string()
+                    "0.0000".to_string()
                 } else {
-                    app.times.last().unwrap().as_millis().to_string()
+                    format!("{:.4}", app.times.last().unwrap().as_secs_f64())
                 }
             }
         },
@@ -115,7 +115,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .rev()
         .map(|s| {
             Text::styled(
-                s.as_millis().to_string() + "\n",
+                format!("{:.4}", s.as_secs_f64()) + "\n",
                 Style::default().fg(Color::White),
             )
         })
@@ -141,8 +141,8 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
                     if label == "worst" {
                         worst = v.as_secs_f64().ceil();
                     }
-                    v.as_millis().to_string()
-                },
+                    format!("{:.4}", v.as_secs_f64())
+                }
                 None => String::from("NA"),
             };
             let text = format!("{}: {}\n", label, value);
@@ -189,7 +189,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
                 .title("Time")
                 .title_style(Style::default().fg(Color::Red))
                 .style(Style::default().fg(Color::White))
-                .bounds([0.0, worst])
+                .bounds([0.0, worst * 1.5])
                 .labels(&["0.0", &worst.to_string()]),
         )
         .datasets(&[dataset])
