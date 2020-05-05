@@ -8,6 +8,14 @@ pub enum Statistic {
     Worst,
 }
 
+// TODO: Easy efficiency improvements:
+// - Computation can easily be O(1) amortized, it's two elementary operations assuming you've
+// stored the length and previous computation
+//
+// avg = (prev_avg * (prev_n) + new_time) / new_n
+// worst should be saved and updated
+// best should be saved and updated
+
 impl Statistic {
     pub fn label(&self) -> String {
         match self {

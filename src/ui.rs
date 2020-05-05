@@ -5,6 +5,7 @@ use tui::style::{Color, Style};
 use tui::widgets::{Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget};
 use tui::{backend::Backend, Frame};
 
+// TODO: Seperate this draw method into a set of private methods to separate concerns
 pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
     let size = f.size();
 
@@ -138,6 +139,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .map(|(label, value)| {
             let value = match value {
                 Some(v) => {
+                    // TODO: This is whack
                     if label == "worst" {
                         worst = v.as_secs_f64().ceil();
                     }
@@ -155,6 +157,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .alignment(Alignment::Left)
         .render(f, averages);
 
+    // TODO: Move this logic elsewhere
     let n = match app.times.len() & 1 {
         0 => app.times.len(),
         1 => app.times.len() + 1,
@@ -189,7 +192,7 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
                 .title("Time")
                 .title_style(Style::default().fg(Color::Red))
                 .style(Style::default().fg(Color::White))
-                .bounds([0.0, worst * 1.5])
+                .bounds([0.0, worst * 1.5]) // TODO(magic-number)
                 .labels(&["0.0", &worst.to_string()]),
         )
         .datasets(&[dataset])
