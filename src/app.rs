@@ -3,7 +3,7 @@ use super::event_handler::Event;
 use super::scramble::Scramble;
 use super::statistic::Statistic;
 use super::timer::Timer;
-use std::sync::mpsc::{Receiver, RecvError, Sender};
+use std::sync::mpsc::{Receiver, RecvError, Sender}; 
 use std::time::Duration;
 
 use State::*;

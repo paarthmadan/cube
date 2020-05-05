@@ -130,12 +130,19 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .alignment(Alignment::Left)
         .render(f, recent);
 
+    let mut worst = 0.0;
+
     let text: Vec<Text> = app
         .compute_statistics()
         .iter()
         .map(|(label, value)| {
             let value = match value {
-                Some(v) => v.as_millis().to_string(),
+                Some(v) => {
+                    if label == "worst" {
+                        worst = v.as_secs_f64().ceil();
+                    }
+                    v.as_millis().to_string()
+                },
                 None => String::from("NA"),
             };
             let text = format!("{}: {}\n", label, value);
@@ -148,29 +155,42 @@ pub fn draw<B: Backend>(f: &mut Frame<B>, app: &App) {
         .alignment(Alignment::Left)
         .render(f, averages);
 
+    let n = match app.times.len() & 1 {
+        0 => app.times.len(),
+        1 => app.times.len() + 1,
+        _ => unreachable! {},
+    };
+
+    let points: Vec<(f64, f64)> = app
+        .times
+        .iter()
+        .enumerate()
+        .map(|(i, time)| (i as f64, time.as_secs_f64()))
+        .collect();
+
     let dataset = Dataset::default()
         .name("All time solves")
         .marker(Marker::Dot)
         .style(Style::default().fg(Color::Cyan))
-        .data(&app.points);
+        .data(&points);
 
     Chart::default()
-        .block(Block::default().title("Solves").borders(Borders::ALL))
+        .block(Block::default().title("Your Solves").borders(Borders::ALL))
         .x_axis(
             Axis::default()
                 .title("Solve")
                 .title_style(Style::default().fg(Color::Red))
                 .style(Style::default().fg(Color::White))
-                .bounds([0.0, 10.0])
-                .labels(&["0.0", "5.0", "10.0"]),
+                .bounds([0.0, n as f64])
+                .labels(&["0.0", &n.to_string()]),
         )
         .y_axis(
             Axis::default()
                 .title("Time")
                 .title_style(Style::default().fg(Color::Red))
                 .style(Style::default().fg(Color::White))
-                .bounds([0.0, 10.0])
-                .labels(&["0.0", "5.0", "10.0"]),
+                .bounds([0.0, worst])
+                .labels(&["0.0", &worst.to_string()]),
         )
         .datasets(&[dataset])
         .render(f, graph);
