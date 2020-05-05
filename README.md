@@ -1,7 +1,20 @@
 # Cube Timer
 A tui-based Rubik's cube timer written in _Rust_.
 
-![Demo](assets/cube.png)
+![Cube demo](assets/cube.png)
+
+![Cube demo in larger TMUX session](assets/setup.png)
+
+#### Instructions (pre-release)
+
+```sh
+git clone https://github.com/paarthmadan/cube
+cd cube
+cargo run
+```
+
+1. Press <kbd>Space</kbd> to begin and end a solve
+2. Press <kbd>q</kbd> to exit the process
 
 Still heavily in development – proper build and release instructions will be added shortly.
 
