@@ -3,6 +3,7 @@ use super::event_handler::Event;
 use super::scramble::Scramble;
 use super::statistic::Statistic;
 use super::timer::Timer;
+use super::data::Data;
 use std::sync::mpsc::{Receiver, RecvError, Sender};
 use std::time::Duration;
 
@@ -108,6 +109,13 @@ impl App {
 
     pub fn process_event(&self) -> Result<Event, RecvError> {
         self.rx.recv()
+    }
+
+    pub fn with_data(data: Data) -> App {
+        let mut app = App::default();
+        app.times = data.times;
+
+        app
     }
 }
 

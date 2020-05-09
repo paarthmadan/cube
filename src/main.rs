@@ -1,4 +1,6 @@
 extern crate termion;
+extern crate serde;
+extern crate serde_json;
 
 mod app;
 mod event_handler;
@@ -6,6 +8,7 @@ mod scramble;
 mod statistic;
 mod timer;
 mod ui;
+mod data;
 
 use event_handler::Event;
 
@@ -18,7 +21,12 @@ use tui::Terminal;
 use app::App;
 
 fn main() -> Result<(), io::Error> {
-    let mut app = App::default();
+    let data = data::read_from_file();
+
+    let mut app = match data {
+        Ok(data) => App::with_data(data),
+        Err(_) => App::default(),
+    };
 
     let stdout = io::stdout().into_raw_mode()?;
     let backend = TermionBackend::new(stdout);
@@ -42,6 +50,8 @@ fn main() -> Result<(), io::Error> {
             };
         }
     }
+
+    data::write_to_file(app)?;
 
     terminal.clear()?;
     terminal.show_cursor()?;
