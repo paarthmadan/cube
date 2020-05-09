@@ -21,7 +21,7 @@ use tui::Terminal;
 use app::App;
 
 fn main() -> Result<(), io::Error> {
-    let data = data::read_from_file();
+    let data = data::import::from_file();
 
     let mut app = match data {
         Ok(data) => App::with_data(data),
@@ -51,7 +51,10 @@ fn main() -> Result<(), io::Error> {
         }
     }
 
-    data::write_to_file(app)?;
+    match data::export::to_file(app) {
+        Ok(_) => {},
+        Err(_) => eprint!("Couldn't save data"),
+    }
 
     terminal.clear()?;
     terminal.show_cursor()?;

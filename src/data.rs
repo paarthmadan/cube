@@ -1,9 +1,8 @@
 use std::time::Duration;
 use serde::{Serialize, Deserialize};
-use super::App;
 use std::fs::File;
-use std::io::BufReader;
-use serde_json::Error;
+use super::app::App;
+
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
@@ -16,15 +15,34 @@ impl Data {
     }
 }
 
-pub fn read_from_file() -> Result<Data, Error> {
-    let file = File::open("data.json").unwrap();
-    let reader = BufReader::new(file);
+pub mod import {
+    use super::*;
+    use std::io::BufReader;
 
-    let data = serde_json::from_reader(reader);
-    data
+    type Result<T> = std::result::Result<T, ReadError>;
+    pub struct ReadError;
+
+    pub fn from_file() -> Result<Data> {
+        let file = File::open("data.json").map_err(|_| ReadError)?;
+        let reader = BufReader::new(file);
+
+        let data = serde_json::from_reader(reader).map_err(|_| ReadError);
+        data
+    }
 }
 
-pub fn write_to_file(app: App) -> Result<(), Error> {
-    let data = Data::from_app(app);
-    serde_json::to_writer(&File::create("data.json").unwrap(), &data)
+pub mod export {
+    use super::*;
+
+    type Result<T> = std::result::Result<T, WriteError>;
+    pub struct WriteError;
+
+    pub fn to_file(app: App) -> Result<()> {
+        let data = Data::from_app(app);
+        let file = File::create("data.json").map_err(|_| WriteError)?;
+
+        serde_json::to_writer(&file, &data).map_err(|_| WriteError)
+    }
 }
+
+
