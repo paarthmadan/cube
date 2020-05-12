@@ -1,8 +1,11 @@
 use std::time::Duration;
 use serde::{Serialize, Deserialize};
-use std::fs::File;
+use std::fs::{create_dir_all, File};
 use super::app::App;
+use dirs::home_dir;
 
+const DIR: &str = ".cube";
+const FILE: &str = "data.json";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Data {
@@ -10,7 +13,7 @@ pub struct Data {
 }
 
 impl Data {
-    fn from_app(app: App) -> Self {
+    fn from(app: App) -> Self {
         Data { times: app.times }
     }
 }
@@ -23,11 +26,12 @@ pub mod import {
     pub struct ReadError;
 
     pub fn from_file() -> Result<Data> {
-        let file = File::open("data.json").map_err(|_| ReadError)?;
+        let home = home_dir().ok_or(ReadError)?;
+
+        let file = File::open(home.join(DIR).join(FILE)).map_err(|_| ReadError)?;
         let reader = BufReader::new(file);
 
-        let data = serde_json::from_reader(reader).map_err(|_| ReadError);
-        data
+        serde_json::from_reader(reader).map_err(|_| ReadError)
     }
 }
 
@@ -38,10 +42,16 @@ pub mod export {
     pub struct WriteError;
 
     pub fn to_file(app: App) -> Result<()> {
-        let data = Data::from_app(app);
-        let file = File::create("data.json").map_err(|_| WriteError)?;
+        let home = home_dir().ok_or(WriteError)?;
+        create_dir_all(home.join(DIR)).map_err(|_| WriteError)?;
 
-        serde_json::to_writer(&file, &data).map_err(|_| WriteError)
+        let data = Data::from(app);
+        let file = File::create(home.join(DIR).join(FILE)).map_err(|_| WriteError)?;
+
+        serde_json::to_writer(
+            file,
+            &data,
+        ).map_err(|_| WriteError)
     }
 }
 

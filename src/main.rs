@@ -1,6 +1,7 @@
 extern crate termion;
 extern crate serde;
 extern crate serde_json;
+extern crate dirs;
 
 mod app;
 mod event_handler;
@@ -43,9 +44,7 @@ fn main() -> Result<(), io::Error> {
                     ' ' => app.toggle(),
                     _ => continue,
                 },
-                Event::InspectionInterrupt => {
-                    app.inspection_countdown();
-                }
+                Event::InspectionInterrupt => app.inspection_countdown(),
                 Event::DrawInterrupt => terminal.draw(|mut f| ui::draw(&mut f, &app)).unwrap(),
             };
         }
