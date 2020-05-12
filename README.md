@@ -25,9 +25,9 @@ Still heavily in development – proper build and release instructions will be a
 - [x] Scramble generator
 - [x] Statistics
 - [x] Solve graph
+- [x] Persisting data across sessions (data written to `~/.cube/data.json`)
 
 #### Not yet implemented
-- [ ] Persisting data across sessions (high priority)
 - [ ] Minimizing CPU usage
 - [ ] Toggling between different cube sessions
 - [ ] Custom configuration (colours etc.)
