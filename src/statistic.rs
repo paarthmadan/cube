@@ -31,7 +31,7 @@ impl Statistic {
                 if times.len() < (*n as usize) {
                     None
                 } else {
-                    let sum = times.iter().map(|x| x.as_secs_f64()).sum::<f64>();
+                    let sum = times.iter().take(*n as usize).map(|x| x.as_secs_f64()).sum::<f64>();
                     let average = sum / (*n as f64);
                     Some(Duration::from_secs_f64(average))
                 }
