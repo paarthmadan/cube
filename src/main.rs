@@ -1,15 +1,15 @@
-extern crate termion;
+extern crate dirs;
 extern crate serde;
 extern crate serde_json;
-extern crate dirs;
+extern crate termion;
 
 mod app;
+mod data;
 mod event_handler;
 mod scramble;
 mod statistic;
 mod timer;
 mod ui;
-mod data;
 
 use event_handler::Event;
 
@@ -51,7 +51,7 @@ fn main() -> Result<(), io::Error> {
     }
 
     match data::export::to_file(app) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(_) => eprint!("Couldn't save data"),
     }
 

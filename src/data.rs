@@ -1,8 +1,8 @@
-use std::time::Duration;
-use serde::{Serialize, Deserialize};
-use std::fs::{create_dir_all, File};
 use super::app::App;
 use dirs::home_dir;
+use serde::{Deserialize, Serialize};
+use std::fs::{create_dir_all, File};
+use std::time::Duration;
 
 const DIR: &str = ".cube";
 const FILE: &str = "data.json";
@@ -48,11 +48,6 @@ pub mod export {
         let data = Data::from(app);
         let file = File::create(home.join(DIR).join(FILE)).map_err(|_| WriteError)?;
 
-        serde_json::to_writer(
-            file,
-            &data,
-        ).map_err(|_| WriteError)
+        serde_json::to_writer(file, &data).map_err(|_| WriteError)
     }
 }
-
-

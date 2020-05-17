@@ -1,9 +1,9 @@
+use super::data::Data;
 use super::event_handler;
 use super::event_handler::Event;
 use super::scramble::Scramble;
 use super::statistic::Statistic;
 use super::timer::Timer;
-use super::data::Data;
 use std::sync::mpsc::{Receiver, RecvError, Sender};
 use std::time::Duration;
 
@@ -71,17 +71,14 @@ impl App {
     }
 
     pub fn inspection_countdown(&mut self) {
-        match &mut self.state {
-            Inspection(time) => {
-                let new_time = *time - 1;
-                if new_time == 0 {
-                    self.start_timing();
-                } else {
-                    self.state = Inspection(new_time);
-                    self.spawn_inspection_thread();
-                }
+        if let Inspection(time) = &mut self.state {
+            let new_time = *time - 1;
+            if new_time == 0 {
+                self.start_timing();
+            } else {
+                self.state = Inspection(new_time);
+                self.spawn_inspection_thread();
             }
-            _ => {}
         }
     }
 

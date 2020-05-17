@@ -35,7 +35,7 @@ fn keyboard_thread(tx: Sender<Event>) {
                 _ => None,
             };
             if let Some(ret) = res {
-                if let Err(_) = tx.send(ret) {
+                if tx.send(ret).is_err() {
                     return;
                 }
             }
@@ -45,7 +45,7 @@ fn keyboard_thread(tx: Sender<Event>) {
 
 fn redraw_interrupt_thread(tx: Sender<Event>) {
     loop {
-        if let Err(_) = tx.send(Event::DrawInterrupt) {
+        if tx.send(Event::DrawInterrupt).is_err() {
             break;
         };
 
@@ -56,7 +56,8 @@ fn redraw_interrupt_thread(tx: Sender<Event>) {
 pub fn spawn_inspection_thread(tx: Sender<Event>) {
     thread::spawn(move || {
         thread::sleep(Duration::from_millis(1000));
-        if let Err(_) = tx.send(Event::InspectionInterrupt) {
+
+        if tx.send(Event::InspectionInterrupt).is_err() {
             return;
         }
     });

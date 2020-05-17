@@ -25,13 +25,17 @@ impl Statistic {
         }
     }
 
-    pub fn compute(&self, times: &Vec<Duration>) -> Option<Duration> {
+    pub fn compute(&self, times: &[Duration]) -> Option<Duration> {
         match self {
             Average(n) => {
                 if times.len() < (*n as usize) {
                     None
                 } else {
-                    let sum = times.iter().take(*n as usize).map(|x| x.as_secs_f64()).sum::<f64>();
+                    let sum = times
+                        .iter()
+                        .take(*n as usize)
+                        .map(|x| x.as_secs_f64())
+                        .sum::<f64>();
                     let average = sum / (*n as f64);
                     Some(Duration::from_secs_f64(average))
                 }
