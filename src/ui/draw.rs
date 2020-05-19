@@ -14,7 +14,8 @@ pub fn draw_screen<B: Backend>(f: &mut Frame<B>, app: &App) {
             [
                 Constraint::Percentage(10),
                 Constraint::Percentage(10),
-                Constraint::Percentage(80),
+                Constraint::Percentage(70),
+                Constraint::Percentage(10),
             ]
             .as_ref(),
         )
@@ -23,6 +24,7 @@ pub fn draw_screen<B: Backend>(f: &mut Frame<B>, app: &App) {
     draw_title(f, layout[0]);
     draw_solve_info(f, layout[1], builder::SolveInfo::from(app));
     draw_stats(f, layout[2], builder::Stats::from(app));
+    draw_instructions(f, layout[3]);
 }
 
 fn draw_title<B: Backend>(f: &mut Frame<B>, section: Rect) {
@@ -148,3 +150,30 @@ fn draw_graph<B: Backend>(f: &mut Frame<B>, section: Rect, graph: builder::Graph
         .render(f, section);
 }
 
+fn draw_instructions<B: Backend>(f: &mut Frame<B>, section: Rect) {
+    let instructions = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(
+            [
+                Constraint::Percentage(50),
+                Constraint::Percentage(50),
+            ]
+            .as_ref(),
+        )
+        .split(section);
+
+    let top_bottom = Borders::TOP | Borders::BOTTOM;
+
+    Paragraph::new([Text::styled("Press [SPACE] to toggle timer", Style::default().fg(Color::Magenta))].iter())
+        .block(Block::default().borders(top_bottom | Borders::LEFT))
+        .alignment(Alignment::Center)
+        .wrap(true)
+        .render(f, instructions[0]);
+
+ 
+    Paragraph::new([Text::styled("Press [Q] to exit", Style::default().fg(Color::LightMagenta))].iter())
+        .block(Block::default().borders(top_bottom | Borders::RIGHT))
+        .alignment(Alignment::Center)
+        .wrap(true)
+        .render(f, instructions[1]);
+}
