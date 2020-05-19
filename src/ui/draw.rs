@@ -84,13 +84,15 @@ fn draw_stats<B: Backend>(f: &mut Frame<B>, section: Rect, data: builder::Stats)
         )
         .split(section);
 
-    let recent = stats[0];
-    let averages = stats[1];
-    let graph = stats[2];
+    draw_recent_solves(f, stats[0], data.recent_solves);
+    draw_averages(f, stats[1], data.stats);
+    draw_graph(f, stats[2], data.graph);
+}
 
+fn draw_recent_solves<B: Backend>(f: &mut Frame<B>, section: Rect, recent_solves: String) {
     Paragraph::new(
         [Text::styled(
-            data.recent_solves,
+            recent_solves,
             Style::default().fg(Color::White),
         )]
         .iter(),
@@ -101,23 +103,27 @@ fn draw_stats<B: Backend>(f: &mut Frame<B>, section: Rect, data: builder::Stats)
             .borders(Borders::ALL),
     )
     .alignment(Alignment::Left)
-    .render(f, recent);
+    .render(f, section);
+}
 
-    Paragraph::new([Text::styled(data.stats, Style::default().fg(Color::White))].iter())
+fn draw_averages<B: Backend>(f: &mut Frame<B>, section: Rect, stats: String) {
+    Paragraph::new([Text::styled(stats, Style::default().fg(Color::White))].iter())
         .block(Block::default().title("Average").borders(Borders::ALL))
         .alignment(Alignment::Left)
-        .render(f, averages);
+        .render(f, section);
+}
 
+fn draw_graph<B: Backend>(f: &mut Frame<B>, section: Rect, graph: builder::GraphInfo) {
     let dataset = Dataset::default()
         .name("All time solves")
         .marker(Marker::Dot)
         .style(Style::default().fg(Color::Cyan))
-        .data(&data.graph.points);
+        .data(&graph.points);
 
-    let x_bounds = data.graph.x_axis.bounds;
+    let x_bounds = graph.x_axis.bounds;
     let x_bounds = [x_bounds.0, x_bounds.1];
 
-    let y_bounds = data.graph.y_axis.bounds;
+    let y_bounds = graph.y_axis.bounds;
     let y_bounds = [y_bounds.0, y_bounds.1];
 
     Chart::default()
@@ -128,7 +134,7 @@ fn draw_stats<B: Backend>(f: &mut Frame<B>, section: Rect, data: builder::Stats)
                 .title_style(Style::default().fg(Color::Red))
                 .style(Style::default().fg(Color::White))
                 .bounds(x_bounds)
-                .labels(&data.graph.x_axis.labels),
+                .labels(&graph.x_axis.labels),
         )
         .y_axis(
             Axis::default()
@@ -136,8 +142,9 @@ fn draw_stats<B: Backend>(f: &mut Frame<B>, section: Rect, data: builder::Stats)
                 .title_style(Style::default().fg(Color::Red))
                 .style(Style::default().fg(Color::White))
                 .bounds(y_bounds)
-                .labels(&data.graph.y_axis.labels),
+                .labels(&graph.y_axis.labels),
         )
         .datasets(&[dataset])
-        .render(f, graph);
+        .render(f, section);
 }
+
