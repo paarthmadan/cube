@@ -1,7 +1,9 @@
 use super::*;
 use tui::layout::{Alignment, Constraint, Direction, Layout, Rect};
 use tui::style::{Color, Style};
-use tui::widgets::{Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Text, Widget};
+use tui::widgets::{
+    Axis, Block, Borders, Chart, Dataset, Marker, Paragraph, Row, Table, Text, Widget,
+};
 use tui::{backend::Backend, Frame};
 
 pub fn draw_screen<B: Backend>(f: &mut Frame<B>, app: &App) {
@@ -108,11 +110,20 @@ fn draw_recent_solves<B: Backend>(f: &mut Frame<B>, section: Rect, recent_solves
     .render(f, section);
 }
 
-fn draw_averages<B: Backend>(f: &mut Frame<B>, section: Rect, stats: String) {
-    Paragraph::new([Text::styled(stats, Style::default().fg(Color::White))].iter())
-        .block(Block::default().title("Average").borders(Borders::ALL))
-        .alignment(Alignment::Left)
-        .render(f, section);
+fn draw_averages<B: Backend>(f: &mut Frame<B>, section: Rect, stats: builder::StatsTable) {
+    let row_style = Style::default().fg(Color::White);
+    Table::new(
+        stats.header.iter(),
+        stats
+            .values
+            .iter()
+            .map(|v| Row::StyledData(v.into_iter(), row_style)),
+    )
+    .block(Block::default().title("Statistics").borders(Borders::ALL))
+    .header_style(Style::default().fg(Color::Magenta))
+    .widths(&[Constraint::Length(8), Constraint::Length(10)])
+    .column_spacing(1)
+    .render(f, section);
 }
 
 fn draw_graph<B: Backend>(f: &mut Frame<B>, section: Rect, graph: builder::GraphInfo) {
@@ -153,27 +164,32 @@ fn draw_graph<B: Backend>(f: &mut Frame<B>, section: Rect, graph: builder::Graph
 fn draw_instructions<B: Backend>(f: &mut Frame<B>, section: Rect) {
     let instructions = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints(
-            [
-                Constraint::Percentage(50),
-                Constraint::Percentage(50),
-            ]
-            .as_ref(),
-        )
+        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
         .split(section);
 
     let top_bottom = Borders::TOP | Borders::BOTTOM;
 
-    Paragraph::new([Text::styled("Press [SPACE] to toggle timer", Style::default().fg(Color::Magenta))].iter())
-        .block(Block::default().borders(top_bottom | Borders::LEFT))
-        .alignment(Alignment::Center)
-        .wrap(true)
-        .render(f, instructions[0]);
+    Paragraph::new(
+        [Text::styled(
+            "Press [SPACE] to toggle timer",
+            Style::default().fg(Color::Magenta),
+        )]
+        .iter(),
+    )
+    .block(Block::default().borders(top_bottom | Borders::LEFT))
+    .alignment(Alignment::Center)
+    .wrap(true)
+    .render(f, instructions[0]);
 
- 
-    Paragraph::new([Text::styled("Press [Q] to exit", Style::default().fg(Color::LightMagenta))].iter())
-        .block(Block::default().borders(top_bottom | Borders::RIGHT))
-        .alignment(Alignment::Center)
-        .wrap(true)
-        .render(f, instructions[1]);
+    Paragraph::new(
+        [Text::styled(
+            "Press [Q] to exit",
+            Style::default().fg(Color::LightMagenta),
+        )]
+        .iter(),
+    )
+    .block(Block::default().borders(top_bottom | Borders::RIGHT))
+    .alignment(Alignment::Center)
+    .wrap(true)
+    .render(f, instructions[1]);
 }

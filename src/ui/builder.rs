@@ -32,8 +32,8 @@ impl From<&App> for SolveInfo {
 
 pub struct Stats {
     pub recent_solves: String,
-    pub stats: String,
     pub graph: GraphInfo,
+    pub stats: StatsTable,
 }
 
 impl From<&App> for Stats {
@@ -47,7 +47,7 @@ impl From<&App> for Stats {
 
         let mut worst = 0.0;
 
-        let stats = app
+        let values = app
             .compute_statistics()
             .iter()
             .map(|(label, value)| {
@@ -60,9 +60,13 @@ impl From<&App> for Stats {
                     }
                     None => String::from("NA"),
                 };
-                format!("{}: {}\n", label, value)
+                [String::from(label), value]
             })
             .collect();
+
+        let header = [String::from("Stat"), String::from("Time")];
+
+        let stats = StatsTable { header, values };
 
         // TODO: Move this logic elsewhere
         let n = match app.times.len() & 1 {
@@ -111,4 +115,9 @@ pub struct GraphInfo {
 pub struct Axis {
     pub bounds: (f64, f64),
     pub labels: Vec<String>,
+}
+
+pub struct StatsTable {
+    pub header: [String; 2],
+    pub values: Vec<[String; 2]>,
 }
