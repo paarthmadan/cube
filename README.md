@@ -8,9 +8,9 @@ A tui-based Rubik's cube timer written in _Rust_.
 #### Instructions (pre-release)
 
 ```sh
-git clone https://github.com/paarthmadan/cube
-cd cube
-cargo run
+git clone https://github.com/paarthmadan/cube && cd cube
+cargo install --path .
+cube
 ```
 
 1. Press <kbd>Space</kbd> to begin and end a solve
